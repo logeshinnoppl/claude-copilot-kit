@@ -1,0 +1,14 @@
+{
+  "tracker": "jira",
+  "commands": {
+    "lint": "npm run lint",
+    "typecheck": "npm run typecheck",
+    "test": "npm test",
+    "build": "npm run build",
+    "e2e": "npx playwright test --project=chromium"
+  },
+  "e2e": { "baseUrl": "http://localhost:3000", "startCommand": "npm run dev" },
+  "baseBranch": "main",
+  "prHost": "bitbucket",
+  "postEditCheck": false
+}

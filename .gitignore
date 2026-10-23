@@ -1,0 +1,4 @@
+node_modules/
+.copilot-kit-data/
+*.log
+.DS_Store

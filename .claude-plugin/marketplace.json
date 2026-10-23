@@ -1,0 +1,13 @@
+{
+  "name": "thecommerceshop-tools",
+  "owner": { "name": "TheCommerceShop Engineering" },
+  "metadata": { "description": "Internal Claude Code plugins for TheCommerceShop" },
+  "plugins": [
+    {
+      "name": "copilot-kit",
+      "source": "./plugins/copilot-kit",
+      "description": "Governed AI-copilot lifecycle: requirement gate (Jira or no-Jira), plan, validate, Playwright, review, PR evidence.",
+      "version": "1.0.0"
+    }
+  ]
+}
