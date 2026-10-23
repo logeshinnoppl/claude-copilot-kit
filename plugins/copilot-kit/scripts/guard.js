@@ -15,6 +15,9 @@ const SAFE_SUFFIX = /\.(example|sample|template|dist|tpl)$/i;
 const READERS = new Set(["cat","less","more","head","tail","grep","egrep","fgrep","rg","ag","sed","awk","cp","scp","rsync","base64","xxd","od","strings","source",".","bat","nl","tac","curl","wget","tee","dd","jq","yq","openssl","gpg","zip","tar","find","xargs","python","python3","node","ruby","perl","type","cut","sort","diff","vim","vi","nano","code"]);
 const SYSTEM_DIRS = new Set(["/","/*","~","~/","~/*","$HOME","$HOME/","$HOME/*","/home","/home/","/etc","/usr","/var","/bin","/sbin","/lib","/opt","/root","/boot","/System","/Users","/Library","/Applications","C:\\","C:/"]);
 
+const BROAD_ROOTS = new Set([".","..","~","$HOME","/"]);
+const GIT_CONTENT_READERS = new Set(["diff","show","blame","annotate","log","grep","cat-file","archive"]);
+
 function isSecretPath(p) {
   if (!p) return false;
   const clean = String(p).replace(/^[<>]+/, "").replace(/\\/g, "/");
@@ -78,11 +81,19 @@ function checkSegment(seg, nextSeg) {
     if (rec && operands.some(o => o === "." || o === ".." || o === "./" || o === "*" || o === "./*"))
       return { d: "ask", why: "recursive delete of the current/parent directory or a bare wildcard" };
   }
+  if (prog === "grep" || prog === "egrep" || prog === "fgrep") {
+    // grep -r does not honour .gitignore, so a broad root sweeps in .env and key files.
+    const rec = flags.has("-r") || flags.has("-R") || flags.has("--recursive") || flags.has("--dereference-recursive");
+    const broad = operands.slice(1).some(o => BROAD_ROOTS.has(o.replace(/\/+$/, "") || "/"));
+    const excludesEnv = seg.tokens.some(t => /^--exclude=.*env/i.test(t));
+    if (rec && broad && !excludesEnv) return { d: "ask", why: "recursive grep over a broad directory can read .env/key files (narrow the path or add --exclude='.env*')" };
+  }
   if (prog === "git") {
     const sub = args.find(a => !a.startsWith("-"));
     if (sub === "push") {
       const forceTok = args.includes("--force") || args.includes("-f") || args.some(a => /^-[A-Za-z]+$/.test(a) && a.includes("f") && !a.startsWith("--"));
       if (forceTok && !args.some(a => a.startsWith("--force-with-lease"))) return { d: "deny", why: "git force-push (use --force-with-lease only with explicit developer approval)" };
+      if (args.some(a => /^\+\S/.test(a))) return { d: "deny", why: "git force-push via a +refspec (use --force-with-lease only with explicit developer approval)" };
       if (args.some(a => a === "--delete" || a === "-d") || args.some(a => /^:[^:]+$/.test(a))) return { d: "ask", why: "deleting a remote branch" };
     }
     if (sub === "reset" && args.includes("--hard")) return { d: "ask", why: "git reset --hard discards uncommitted work" };
@@ -96,7 +107,10 @@ function checkSegment(seg, nextSeg) {
   if (["chmod","chown"].includes(prog) && (flags.has("-R")) && operands.some(o => SYSTEM_DIRS.has(o))) return { d: "deny", why: "recursive permission change on a system path" };
 
   // Secrets: content-reading programs touching secret files, or redirects from them
-  const touchesSecret = seg.tokens.some(t => isSecretPath(t)) || seg.tokens.some(t => /^<.+/.test(t) && isSecretPath(t.slice(1)));
+  const touchesSecret = seg.tokens.some(t => isSecretPath(t)) || seg.tokens.some(t => /^<.+/.test(t) && isSecretPath(t.slice(1)))
+    || seg.tokens.some(t => t.includes(":") && isSecretPath(t.split(":").pop())); // git rev:path, e.g. HEAD:.env
+  if (touchesSecret && prog === "git" && GIT_CONTENT_READERS.has(args.find(a => !a.startsWith("-"))))
+    return { d: "deny", why: "reading a secret/credential file through git (diff/show/log/blame/grep/cat-file)" };
   if (touchesSecret && (READERS.has(prog) || seg.tokens.some(t => /^<.+/.test(t)) || seg.tokens.includes("<") ))
     return { d: "deny", why: "reading a secret/credential file (.env, keys, credentials)" };
   if (touchesSecret && prog === "git" && ["add","commit"].includes(args.find(a => !a.startsWith("-"))))

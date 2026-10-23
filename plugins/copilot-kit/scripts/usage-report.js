@@ -14,7 +14,7 @@ const rows = new Map();
 for (const s of latest.values()) for (const [model, u] of Object.entries(s.models || {})) {
   const key = by === "model" ? model : (s[by] || "(none)");
   const r = rows.get(key) || { sessions: new Set(), prompts: 0, input: 0, output: 0, cache_read: 0, cache_write: 0, models: new Set() };
-  r.sessions.add(s.session_id); r.prompts += by === "model" ? 0 : 0; r.input += u.input; r.output += u.output; r.cache_read += u.cache_read; r.cache_write += u.cache_write; r.models.add(model); rows.set(key, r);
+  r.sessions.add(s.session_id); r.input += u.input; r.output += u.output; r.cache_read += u.cache_read; r.cache_write += u.cache_write; r.models.add(model); rows.set(key, r);
 }
 const promptsBy = new Map(); for (const s of latest.values()) { const k = by === "model" ? "" : (s[by] || "(none)"); promptsBy.set(k, (promptsBy.get(k) || 0) + (s.prompts || 0)); }
 console.log(["group", "sessions", "prompts", "input", "output", "cache_read", "cache_write", "models"].join("\t"));

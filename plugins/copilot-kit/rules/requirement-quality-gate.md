@@ -1,6 +1,6 @@
 # Requirement Quality Gate
 
-**Hard gate: a ticket may not move to implementation until this checklist is satisfied.** This is enforced by the `requirement-analyzer` skill and the `planner-agent` subagent — neither should hand off to coding until every applicable item below is either present in the ticket or explicitly waived by the developer.
+**Hard gate (by instruction): a ticket may not move to implementation until this checklist is satisfied.** No hook blocks edits before the gate passes; it is followed because the `requirement-analyzer` skill, the `planner-agent` subagent and the SessionStart rules instruct it. Neither skill nor agent should hand off to coding until every applicable item below is either present in the ticket or explicitly waived by the developer. Reviewers should check the PR for the recorded gate result and any waivers.
 
 ## The 12-point checklist
 

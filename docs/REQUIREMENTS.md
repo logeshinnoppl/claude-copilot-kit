@@ -13,7 +13,7 @@ Requirement quality gate → AI context/rules → model & token control → auto
 
 ## R3 Requirement handling
 - R3.1 12-point requirement quality gate (business objective, user story, AC, Figma/UI ref, technical constraints, affected components, edge cases, testing scope, browser/device scope, analytics, out of scope, definition of done).
-- R3.2 Hard gate: no implementation until satisfied or explicitly waived (waivers recorded).
+- R3.2 Hard gate: no implementation until satisfied or explicitly waived (waivers recorded). Enforced by instruction only (skills, agents, SessionStart rules); no hook blocks edits. A hook-based gate is a possible future enhancement.
 - R3.3 Jira is optional. Without Jira there must be an equivalent path whose requirement prompt matches the same norms (requirement-intake + brief template + developer confirmation).
 - R3.4 Same quality bar ("what counts as present") for both paths.
 
