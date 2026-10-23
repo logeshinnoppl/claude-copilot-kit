@@ -8,3 +8,4 @@
 6. Post-edit lint/typecheck is opt-in (`postEditCheck`) because whole-repo lint per edit is slow.
 7. Usage log stores token counts only (no prompt text), in `$CLAUDE_PLUGIN_DATA`.
 8. Commands come from `.copilot-kit.json` then package.json; never invented.
+9. Lifecycle band is a separate optional plugin (`copilot-kit-band`), not part of copilot-kit: it needs a newer Claude Code build and only draws in terminal/desktop, so hooks and skills stay the source of truth. Read-only; stage means "skill ran", not "passed" (verdicts aren't parsed). Its TSX module is exempt from the dependency-free-Node-hooks rule, which still governs `plugins/copilot-kit`.

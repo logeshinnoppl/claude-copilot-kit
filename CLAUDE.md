@@ -6,6 +6,7 @@ Read first: @docs/REQUIREMENTS.md, @docs/DECISIONS.md, @docs/BACKLOG.md
 
 ## Layout
 - `plugins/copilot-kit/` — the plugin: `.claude-plugin/plugin.json`, `skills/*/SKILL.md`, `agents/*.md`, `hooks/hooks.json`, `scripts/*.js`, `rules/*.md`, `templates/`, `docs/`, `.mcp.json`.
+- `plugins/copilot-kit-band/` — optional read-only status band (TSX mod, own README; check with `claude plugin validate` + `claude plugin test`).
 - `docs/` — requirements, decisions, backlog for this project (not shipped in the plugin).
 
 ## Working rules

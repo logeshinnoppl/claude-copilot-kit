@@ -13,4 +13,6 @@ Enhancements
 - [ ] `plugin eval` suites for the skills.
 - [ ] Bitbucket MCP / pipeline-status integration; Jira write-back of PR link.
 - [ ] LICENSE + icon if listing in a public directory.
+- [ ] Band v2: persist mode across sessions; action buttons (run next skill); parse READY/NEEDS FIXES verdicts; read configured commands from `.copilot-kit.json`; type-check with `tsc`.
+- [ ] Verify the band in a live Claude Code session (terminal and desktop).
 - [ ] Real retry-ratio metric (needs a definition the team agrees on).
