@@ -111,6 +111,16 @@ export const register: Register = on => {
     return ran
   })
 
+  // A typed slash command (/copilot-kit:plan-feature) is a command, not a Skill tool call.
+  on('prompt.submit', async ($, e, next) => {
+    try {
+      const typed = e.command?.name ?? e.text.trim().match(/^\/([\w:.-]+)/)?.[1]
+      const stage = typed ? stageOfSkill(typed) : null
+      if (stage) await update($, stages, s => mark(s, stage))
+    } catch {}
+    return next(e)
+  })
+
   on('skill.prompt', async ($, e, next) => {
     const stage = stageOfSkill(e.pluginName === 'copilot-kit' ? `copilot-kit:${e.skill.replace(/^copilot-kit:/, '')}` : e.skill)
     if (stage) await update($, stages, s => mark(s, stage))

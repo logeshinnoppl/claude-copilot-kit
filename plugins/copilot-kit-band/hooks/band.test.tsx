@@ -75,3 +75,13 @@ test('/copilot-kit-band compact folds it, off hides it, on brings it back', asyn
   expect(await ui.find({ type: 'Button', key: 'compact' })).toBeTruthy()
   await ui.unmount()
 })
+
+test('a typed slash command moves the band', async ($, on) => {
+  on('prompt.submit', (_, e) => ({ text: e.text }))
+
+  await $.prompt.submit({ text: '/copilot-kit:plan-feature improve lighting' })
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  expect(await ui.find({ type: 'Text', text: /● Plan/ })).toBeTruthy()
+  await ui.unmount()
+})

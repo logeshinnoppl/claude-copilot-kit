@@ -17,7 +17,7 @@
       "name": "copilot-kit-band",
       "source": "./plugins/copilot-kit-band",
       "description": "Optional read-only lifecycle band for copilot-kit: stage progress, checks, guard blocks and tokens above the prompt.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }
