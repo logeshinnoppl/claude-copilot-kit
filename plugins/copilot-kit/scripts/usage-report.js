@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Usage: node usage-report.js [path-to-usage.jsonl] [--by ticket|branch|project|model]
+// Usage: node usage-report.js [path-to-usage.jsonl] [--by ticket|branch|project|model|phases]
+// --by phases: per session, the skill/phase sequence with minutes since session start.
 // Prints token usage per group from the latest snapshot of each session. Tokens only: apply your own
 // price table for cost (prices change). "prompts" = human turns per session (a rough retry proxy, not a true retry ratio).
 const fs = require("fs"); const path = require("path"); const os = require("os");
@@ -10,6 +11,14 @@ const file = args.find((a, i) => !a.startsWith("--") && i !== byIdx + 1) ||
 if (!fs.existsSync(file)) { console.error("No usage log at " + file); process.exit(1); }
 const latest = new Map();
 for (const l of fs.readFileSync(file, "utf8").split("\n")) { if (!l.trim()) continue; try { const o = JSON.parse(l); latest.set(o.session_id, o); } catch {} }
+if (by === "phases") {
+  for (const s of latest.values()) {
+    const t0 = Date.parse(s.started); if (!(s.phases || []).length) continue;
+    console.log(`${s.session_id.slice(0, 8)}  ${s.project || "(none)"}`);
+    for (const p of s.phases) console.log(`  +${((Date.parse(p.ts) - t0) / 60000).toFixed(1)}m\t${p.skill}`);
+  }
+  process.exit(0);
+}
 const rows = new Map();
 for (const s of latest.values()) for (const [model, u] of Object.entries(s.models || {})) {
   const key = by === "model" ? model : (s[by] || "(none)");

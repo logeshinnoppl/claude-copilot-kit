@@ -15,6 +15,8 @@ Then in each repo run **`/copilot-kit:setup-project`** once and commit `.copilot
 4. UI work: `/copilot-kit:playwright-tester`.
 5. `/copilot-kit:code-review` (or `review-agent`), then `/copilot-kit:create-pr`.
 
+**Fast lane (small changes):** `/copilot-kit:deliver <ticket or idea>` does gate + plan + one approval in a single compact pass, then implements.
+
 ## Jira vs no-Jira
 `.copilot-kit.json` → `"tracker": "jira" | "none"`. Both paths apply the same 12-point gate and "what counts as present" quality bar (`rules/requirement-quality-gate.md`). No-Jira briefs use `templates/requirement-brief.md`, get a `LOCAL-<date>-<slug>` reference, and require explicit developer confirmation. If Jira is configured but unreachable, the analyzer offers pasted text (marked unverified) or intake.
 
@@ -25,7 +27,7 @@ Then in each repo run **`/copilot-kit:setup-project`** once and commit `.copilot
 - The guard is a backstop for common mistakes, not a security boundary. Combine with org permission settings.
 
 ## Usage report
-Stop hook records per-session token usage by model (no prompt text) to `$CLAUDE_PLUGIN_DATA/usage.jsonl` (default `~/.claude/copilot-kit/`). Report: `node <plugin>/scripts/usage-report.js --by ticket|branch|project|model`. Ticket is inferred from the git branch name. Disable with `COPILOT_KIT_USAGE_LOG=off`.
+Stop hook records per-session token usage by model (no prompt text) to `$CLAUDE_PLUGIN_DATA/usage.jsonl` (default `~/.claude/copilot-kit/`). Report: `node <plugin>/scripts/usage-report.js --by ticket|branch|project|model`. Ticket is inferred from the git branch name; project is the directory the session started in. Each snapshot also records `phases` (skill invocations with timestamps) for per-phase timing. Disable with `COPILOT_KIT_USAGE_LOG=off`.
 
 ## Prerequisites
 Node 18+, git, and for UI tests `@playwright/test` + browsers in the target repo.

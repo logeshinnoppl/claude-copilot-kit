@@ -10,14 +10,14 @@ Uses **Playwright** (https://playwright.dev/) twice: the Playwright MCP server (
 
 ## Preconditions (check, don't assume)
 - Playwright MCP tools are available (names contain `playwright`, e.g. `browser_navigate`, `browser_snapshot`). If not: stop and tell the developer to enable the plugin's `playwright` MCP server (needs Node 18+ and `npx`).
-- `@playwright/test` is a project dependency and browsers are installed (`npx playwright install` if needed — ask before installing). Check `package.json`/config; if the project has no Playwright setup, propose adding it and wait for approval (new dependency).
+- `@playwright/test` is a project dependency and browsers are installed. Check `package.json`/config **once**. If missing, ask the developer a single question to add it (`npm i -D @playwright/test` + `npx playwright install`, and a minimal `playwright.config` with `e2e.baseUrl`) and wait. Do **not** search `~/.npm/_npx` or other caches, set `NODE_PATH`, or write a throwaway `.cjs` script: that is not a durable regression spec. For a project with no `package.json` (static site), propose a small `tests/e2e/` folder with its own `package.json`.
 - The app is running at a known URL (`.copilot-kit.json` → `e2e.baseUrl` / `e2e.startCommand`). Ask if unknown.
 - ACs are known.
 
 ## Procedure
 1. Write each AC as Given/When/Then.
-2. **Explore live** with the Playwright MCP tools: navigate → snapshot (prefer the accessibility snapshot to locate elements) → click/type/fill_form/select/press_key → wait_for the expected state (no fixed sleeps) → snapshot again to confirm the Then → check console messages and network requests for errors → close.
-3. Only then write the spec in the project's e2e location and conventions, using the selectors/assertions just confirmed. Prefer role/label/test-id locators and web-first assertions (`expect(locator).toBeVisible()`); no `waitForTimeout`.
+2. **Explore live, bounded**: at most ~8 browser calls per scenario and a short `browser_run_code` only when a snapshot cannot answer (each can take 30–40s). Stop exploring as soon as the Then is confirmed. Use the Playwright MCP tools: navigate → snapshot (prefer the accessibility snapshot to locate elements) → click/type/fill_form/select/press_key → wait_for the expected state (no fixed sleeps) → snapshot again to confirm the Then → check console messages and network requests for errors → close.
+3. Only then write the spec (`*.spec.ts`/`.js` using `@playwright/test`) in the project's e2e location and conventions, using the selectors/assertions just confirmed. Prefer role/label/test-id locators and web-first assertions (`expect(locator).toBeVisible()`); no `waitForTimeout`.
 4. Run it headlessly with the project's e2e command (`commands.e2e`) and confirm it passes; then run the whole e2e suite once.
 5. Cover negative/edge cases from the ACs the same way (invalid input, empty state, permission denied).
 6. Test data must be synthetic. Never type real credentials; use test accounts from env vars/fixtures.

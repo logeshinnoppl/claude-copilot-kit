@@ -11,7 +11,7 @@
       "name": "copilot-kit",
       "source": "./plugins/copilot-kit",
       "description": "Governed AI-copilot lifecycle: requirement gate (Jira or no-Jira), plan, validate, Playwright, review, PR evidence.",
-      "version": "1.0.1"
+      "version": "1.1.0"
     },
     {
       "name": "copilot-kit-band",
