@@ -45,7 +45,7 @@ test('deliver folds Req and Gate, edits start Validate, playwright starts E2E, r
   on('tool.call', () => ({ result: {} }))
   await $.tool.call({ tool: 'Skill', skill: 'copilot-kit:deliver' })
   await $.tool.call({ tool: 'mcp__plugin_copilot-kit_playwright__browser_navigate', url: 'x' } as never)
-  await $.tool.call({ tool: 'Edit', file_path: '/a', old_string: 'a', new_string: 'b' } as never)
+  await $.tool.call({ tool: 'Bash', command: "python3 - <<'EOF'\nprint(1)\nEOF" })
   await $.tool.call({ tool: 'Bash', command: 'node tests/e2e/gallery.cjs' })
 
   const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })

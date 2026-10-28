@@ -29,4 +29,4 @@ Read-only. Review the diff cold, as if it were someone else's PR.
 Critical: N, High: N, Medium: N, Low: N
 ### Verdict: READY FOR PR | NEEDS FIXES
 ```
-READY FOR PR requires zero Critical/High. For Large changes prefer the `review-agent` subagent (separate context).
+READY FOR PR requires zero Critical/High **and zero Medium** (fix them or have the developer explicitly accept each one, recorded in the output); otherwise the verdict is NEEDS FIXES. For Large changes prefer the `review-agent` subagent (separate context).

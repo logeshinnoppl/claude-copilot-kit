@@ -1,6 +1,6 @@
 {
   "name": "copilot-kit",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "TheCommerceShop governed AI-copilot lifecycle: requirement gate (Jira or no-Jira), plan, implement+validate, Playwright verification, review, PR with evidence. Language-agnostic.",
   "author": { "name": "TheCommerceShop Engineering" },
   "keywords": ["lifecycle", "requirements", "playwright", "code-review", "pull-request"]

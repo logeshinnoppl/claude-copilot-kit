@@ -16,9 +16,10 @@ Uses **Playwright** (https://playwright.dev/) twice: the Playwright MCP server (
 
 ## Procedure
 1. Write each AC as Given/When/Then.
-2. **Explore live, bounded**: at most ~8 browser calls per scenario and a short `browser_run_code` only when a snapshot cannot answer (each can take 30–40s). Stop exploring as soon as the Then is confirmed. Use the Playwright MCP tools: navigate → snapshot (prefer the accessibility snapshot to locate elements) → click/type/fill_form/select/press_key → wait_for the expected state (no fixed sleeps) → snapshot again to confirm the Then → check console messages and network requests for errors → close.
+2. **Explore live, bounded**: **hard cap of 12 Playwright MCP calls in total** for the whole feature. Do not loop `browser_run_code_unsafe` (each call takes 30–40s); use it at most twice, and only when a snapshot cannot answer. Stop exploring as soon as the Then is confirmed. If something fails, debug with the spec's own trace/`--reporter=line`, not more live exploration. Use the Playwright MCP tools: navigate → snapshot (prefer the accessibility snapshot to locate elements) → click/type/fill_form/select/press_key → wait_for the expected state (no fixed sleeps) → snapshot again to confirm the Then → check console messages and network requests for errors → **always `browser_close` when done** (a leftover Chrome profile locks the MCP for the next session).
 3. Only then write the spec (`*.spec.ts`/`.js` using `@playwright/test`) in the project's e2e location and conventions, using the selectors/assertions just confirmed. Prefer role/label/test-id locators and web-first assertions (`expect(locator).toBeVisible()`); no `waitForTimeout`.
 4. Run it headlessly with the project's e2e command (`commands.e2e`), not piped through `tail`/`head`, and report the observed exit code; then run the whole e2e suite once.
+4b. If the app loads slow remote assets (e.g. a 3D model from a CDN), stub or route them in the spec (`page.route`) or use a local fixture so each test takes seconds, not 30s; keep one unstubbed smoke test at most.
 5. Cover negative/edge cases from the ACs the same way (invalid input, empty state, permission denied).
 6. Test data must be synthetic. Never type real credentials; use test accounts from env vars/fixtures.
 

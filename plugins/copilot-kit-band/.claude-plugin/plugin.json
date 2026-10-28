@@ -1,6 +1,6 @@
 {
   "name": "copilot-kit-band",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Optional read-only lifecycle band for copilot-kit: stage progress, validation checks, guard blocks and token use above the prompt.",
   "author": { "name": "TheCommerceShop Engineering" },
   "types": "./types/index.d.ts"

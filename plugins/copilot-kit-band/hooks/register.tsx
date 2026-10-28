@@ -75,6 +75,8 @@ const bareName = (name: string) => (name.startsWith('copilot-kit:') ? name.slice
 
 // Work done inside deliver or by hand: edits mean Validate has started; browser/e2e activity after that means E2E.
 const EDIT_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit'])
+// Edits made through Bash (sed -i, python heredoc, cat > file, tee) are edits too.
+const BASH_WRITE = /\bsed\s+-i|\bpython3?\s+-\s*<<|\bcat\s*>|\btee\s|\bperl\s+-pi/
 const E2E_COMMAND = /playwright|tests?\/e2e/
 const onWork = (current: Stages, isEdit: boolean, isE2e: boolean): Stages | null => {
   if (isEdit && current.impl === 'todo' && current.e2e === 'todo' && current.review === 'todo' && current.plan !== 'todo') return mark(current, 'impl')
@@ -121,7 +123,7 @@ export const register: Register = on => {
       } else {
         const tool = String(e.tool)
         const isE2e = /playwright/i.test(tool) || (tool === 'Bash' && E2E_COMMAND.test(String((e as { command?: string }).command ?? '')))
-        const isEdit = EDIT_TOOLS.has(tool)
+        const isEdit = EDIT_TOOLS.has(tool) || (tool === 'Bash' && BASH_WRITE.test(String((e as { command?: string }).command ?? '')))
         if (isEdit || isE2e) await update($, stages, s => onWork(s, isEdit, isE2e) ?? s)
       }
     } catch {}
@@ -154,6 +156,8 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
+    // The review verdict is not parsed; a finished review turn is done (PR is a manual step).
+    try { await update($, stages, s => (s.review === 'active' ? { ...s, review: 'done' } : s)) } catch {}
     const u = e.usage
     await update($, totals, t => ({
       turns: t.turns + 1,
