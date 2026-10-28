@@ -16,6 +16,7 @@ const LABEL: Record<StageId, string> = {
   pr: 'PR',
 }
 const SKILL_STAGE: Record<string, StageId> = {
+  deliver: 'plan', // fast lane: req and gate are folded into one approval block, see applySkill
   'requirement-intake': 'req',
   'requirement-analyzer': 'gate',
   'plan-feature': 'plan',
@@ -61,6 +62,26 @@ const mark = (current: Stages, stage: StageId): Stages => {
   return next
 }
 
+// deliver folds Req + Gate + Plan into one pass, so the first two are done as soon as it starts.
+const applySkill = (current: Stages, bare: string, stage: StageId): Stages => {
+  const next = mark(current, stage)
+  if (bare === 'deliver') {
+    next.req = 'done'
+    next.gate = 'done'
+  }
+  return next
+}
+const bareName = (name: string) => (name.startsWith('copilot-kit:') ? name.slice('copilot-kit:'.length) : name)
+
+// Work done inside deliver or by hand: edits mean Validate has started; browser/e2e activity after that means E2E.
+const EDIT_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit'])
+const E2E_COMMAND = /playwright|tests?\/e2e/
+const onWork = (current: Stages, isEdit: boolean, isE2e: boolean): Stages | null => {
+  if (isEdit && current.impl === 'todo' && current.e2e === 'todo' && current.review === 'todo' && current.plan !== 'todo') return mark(current, 'impl')
+  if (isE2e && current.impl !== 'todo' && current.e2e === 'todo' && current.review === 'todo') return mark(current, 'e2e')
+  return null
+}
+
 const tokens = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1)}k` : String(n))
 const glyph = (s: 'todo' | 'active' | 'done') => (s === 'done' ? '✓' : s === 'active' ? '●' : '○')
 
@@ -96,7 +117,12 @@ export const register: Register = on => {
     try {
       if (e.tool === 'Skill') {
         const stage = stageOfSkill(e.skill)
-        if (stage) await update($, stages, s => mark(s, stage))
+        if (stage) await update($, stages, s => applySkill(s, bareName(e.skill), stage))
+      } else {
+        const tool = String(e.tool)
+        const isE2e = /playwright/i.test(tool) || (tool === 'Bash' && E2E_COMMAND.test(String((e as { command?: string }).command ?? '')))
+        const isEdit = EDIT_TOOLS.has(tool)
+        if (isEdit || isE2e) await update($, stages, s => onWork(s, isEdit, isE2e) ?? s)
       }
     } catch {}
     const ran = await next(e)
@@ -116,14 +142,14 @@ export const register: Register = on => {
     try {
       const typed = e.command?.name ?? e.text.trim().match(/^\/([\w:.-]+)/)?.[1]
       const stage = typed ? stageOfSkill(typed) : null
-      if (stage) await update($, stages, s => mark(s, stage))
+      if (stage && typed) await update($, stages, s => applySkill(s, bareName(typed), stage))
     } catch {}
     return next(e)
   })
 
   on('skill.prompt', async ($, e, next) => {
     const stage = stageOfSkill(e.pluginName === 'copilot-kit' ? `copilot-kit:${e.skill.replace(/^copilot-kit:/, '')}` : e.skill)
-    if (stage) await update($, stages, s => mark(s, stage))
+    if (stage) await update($, stages, s => applySkill(s, bareName(e.skill), stage))
     return next(e)
   })
 

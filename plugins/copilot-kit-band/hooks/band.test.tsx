@@ -41,6 +41,22 @@ test('stages, checks and guard blocks show in the band, on every surface', async
   }
 })
 
+test('deliver folds Req and Gate, edits start Validate, playwright starts E2E, review follows', async ($, on) => {
+  on('tool.call', () => ({ result: {} }))
+  await $.tool.call({ tool: 'Skill', skill: 'copilot-kit:deliver' })
+  await $.tool.call({ tool: 'mcp__plugin_copilot-kit_playwright__browser_navigate', url: 'x' } as never)
+  await $.tool.call({ tool: 'Edit', file_path: '/a', old_string: 'a', new_string: 'b' } as never)
+  await $.tool.call({ tool: 'Bash', command: 'node tests/e2e/gallery.cjs' })
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  expect(await ui.find({ type: 'Text', text: /✓ Req/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /✓ Gate/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /✓ Plan/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /✓ Validate/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /● E2E/ })).toBeTruthy()
+  await ui.unmount()
+})
+
 test("another plugin's skill of the same name does not move the band", async ($, on) => {
   on('tool.call', () => ({ result: {} }))
   await $.tool.call({ tool: 'Skill', skill: 'anthropic-skills:requirement-analyzer' })
