@@ -30,4 +30,4 @@ disallowed-tools: Edit, Write
 ```
 
 ## Completion
-Every AC maps to ≥1 task and ≥1 test; no task silently expands scope. Then implement one task at a time with `run-tests-fix` after each.
+Every AC maps to ≥1 task and ≥1 test; no task silently expands scope. Then implement one task at a time with `run-tests-fix` after each. **If the change has a UI surface, invoke the `playwright-tester` skill (Skill tool) after implementation**: the live check of the finished change is part of done, not optional.

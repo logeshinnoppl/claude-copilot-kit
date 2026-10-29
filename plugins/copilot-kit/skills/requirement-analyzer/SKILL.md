@@ -39,6 +39,7 @@ Source: Jira (verified) | pasted ticket (unverified) | brief <ref>
 ...
 ### Missing / weak details (blocking)
 ### Affected files/modules
+Compare any file scope in the Definition of done ("only X changes") with these files; if they disagree (new spec, CSS, config), list it under Missing / weak details as a wording fix to confirm.
 ### Risks
 ### Draft task breakdown
 ### Required tests (AC → layer → what it verifies)

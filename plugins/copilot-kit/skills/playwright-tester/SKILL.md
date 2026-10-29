@@ -23,6 +23,12 @@ Uses **Playwright** (https://playwright.dev/) twice: the Playwright MCP server (
 5. Cover negative/edge cases from the ACs the same way (invalid input, empty state, permission denied).
 6. Test data must be synthetic. Never type real credentials; use test accounts from env vars/fixtures.
 
+## What headless cannot verify
+Browser-chrome behaviour (Esc to leave fullscreen, native dialogs, permission prompts, real-device/iOS behaviour, true visual quality) is **not verifiable** here. Do not just mention it in a caveat: test the equivalent in-page path (e.g. `document.exitFullscreen()`), and list each such item under "Manual checks" with how to check it by hand.
+
+## Browser scope
+If the brief/ACs name Firefox or WebKit (Safari), ask once to add those Playwright projects to the config and run `npx playwright install firefox webkit`; run the spec on each. Real iOS/Android devices stay a manual check.
+
 ## If MCP is unavailable
 Do not write an unverified spec silently. Report it; only if the developer explicitly accepts, write the spec and label every scenario **NOT live-verified**.
 
@@ -36,4 +42,6 @@ Given … / When … / Then …
 - Live-verified AFTER the change was made (not only before): yes/no
 - Headless run: `<command>` → exit <n> ✅/❌
 ### Coverage: AC → scenario
+### Manual checks (not testable headlessly)
+1. <behaviour> — why it can't be automated — how to check by hand
 ```
