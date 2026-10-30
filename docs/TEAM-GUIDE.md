@@ -135,8 +135,41 @@ Turn off with `COPILOT_KIT_USAGE_LOG=off`. The adoption figures on Claude's plug
 - One session per requirement; a session carrying earlier work costs tokens on every later turn.
 - Disable synced plugins you do not use; copilot-kit itself adds about 1.2k tokens per turn.
 
-## 11. E-commerce projects (Drupal, Magento, Shopify, BigCommerce)
-See `plugins/copilot-kit/rules/stack-hints.md`. Never run e2e against production; take logins and storefront passwords from environment variables; use synthetic data and test payment modes; wait for slow stacks to start (`e2e.readyTimeoutSec`). Platform-native suites (Magento MFTF, Drupal Nightwatch or Behat) are not driven by the plugin. The hints are untested on real projects.
+## 11. Other languages and platforms (e2e)
+**How e2e works, whatever the stack**
+- The plugin tests the **running site in a browser**, so the app's language does not matter. You give it `e2e.baseUrl` and `e2e.startCommand`.
+- Live check: the Playwright MCP server, which is language-independent.
+- Durable spec: always **`@playwright/test` (Node)**. A Python, PHP, Java or Go project gets a small separate Node package for its e2e tests, for example `tests/e2e/package.json` with its own `playwright.config.ts`. This needs Node 18+, which the plugin requires anyway. Playwright's Python and Java bindings are not used or supported by the skill.
+- Other checks (lint, type-check, unit test, build) are whatever commands you put in `.copilot-kit.json`, in any language.
+
+| Stack | Commands you set | e2e |
+|---|---|---|
+| Node / TypeScript | Detected from `package.json` scripts | `@playwright/test` in the project |
+| Python | `ruff`, `mypy`, `pytest` (confirm with `setup-project`) | Node package in `tests/e2e/` |
+| Java / Kotlin | `mvn` or `gradle` tasks | Node package in `tests/e2e/` |
+| Go | `go vet`, `go test`, `go build` | Node package in `tests/e2e/` |
+| PHP (Laravel, Symfony) | `phpcs`, `phpstan`, `phpunit` | Node package in `tests/e2e/` |
+
+`setup-project` reads `package.json`, `pyproject`, `Makefile`, `go.mod`, `pom` and gradle files and proposes commands for you to confirm. Only `package.json` scripts are inferred automatically at runtime; for every other stack, set the commands in `.copilot-kit.json`, or checks are skipped. `composer.json` is not detected yet.
+
+**E-commerce platforms (Drupal, Magento, Shopify, BigCommerce)**
+Details are in `plugins/copilot-kit/rules/stack-hints.md`.
+
+| Platform | Typical local run | `baseUrl` |
+|---|---|---|
+| Drupal | `ddev start` or `lando start` | `https://<project>.ddev.site` |
+| Magento | `warden env up` or Docker compose | the local store URL |
+| Shopify theme | `shopify theme dev` | `http://127.0.0.1:9292` |
+| BigCommerce | `stencil start` | `http://localhost:3000` |
+| Static theme export | `python3 -m http.server <port> -d <dir>` | `http://localhost:<port>` |
+
+Rules for storefronts:
+- Never run e2e against production. Use local, staging or a development store.
+- Take logins and storefront passwords from environment variables; never type or store them.
+- Use synthetic data and test payment modes only.
+- Wait for slow stacks to start (`e2e.readyTimeoutSec`, default 120 seconds).
+- Magento MFTF and Drupal Nightwatch or Behat are not driven by the plugin.
+- The commands and URLs above are suggestions and are untested on real projects.
 
 ## 12. Troubleshooting
 | Symptom | Cause and fix |
