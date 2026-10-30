@@ -14,6 +14,9 @@ Uses **Playwright** (https://playwright.dev/) twice: the Playwright MCP server (
 - The app is running at a known URL (`.copilot-kit.json` → `e2e.baseUrl` / `e2e.startCommand`). Ask if unknown.
 - ACs are known.
 
+## Environment safety (storefronts and any app with a live backend)
+Read `${CLAUDE_PLUGIN_ROOT}/rules/stack-hints.md` for e-commerce stacks. Never test against production; take logins and storefront passwords from environment variables, never typed or stored; synthetic data and test payment modes only; wait for the site to be ready (`e2e.readyTimeoutSec`, default 120s) before testing.
+
 ## Procedure
 1. Write each AC as Given/When/Then.
 2. **Explore live, bounded**: **hard cap of 12 Playwright MCP calls in total** for the whole feature. Do not loop `browser_run_code_unsafe` (each call takes 30–40s); use it at most twice, and only when a snapshot cannot answer. Stop exploring as soon as the Then is confirmed. If something fails, debug with the spec's own trace/`--reporter=line`, not more live exploration. Use the Playwright MCP tools: navigate → snapshot (prefer the accessibility snapshot to locate elements) → click/type/fill_form/select/press_key → wait_for the expected state (no fixed sleeps) → snapshot again to confirm the Then → check console messages and network requests for errors → **always `browser_close` when done** (a leftover Chrome profile locks the MCP for the next session).

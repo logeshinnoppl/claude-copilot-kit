@@ -7,7 +7,7 @@ Verification gaps (not yet tested)
 - [ ] Behaviour of `disable-model-invocation` skills inside subagents.
 
 Enhancements
-- [ ] Stack-specific add-on plugins (e.g. python, java, node) with command defaults.
+- [ ] Stack-specific add-on plugins (e.g. python, java, node) with command defaults. Drupal/Magento/Shopify/BigCommerce: hints exist in rules/stack-hints.md (1.2.0), unverified on real projects; no auto-detection in lib.js yet.
 - [ ] Dashboard for usage.jsonl (cost needs a maintained price table).
 - [ ] CI job: validate plugin + run guard fixtures on every PR.
 - [ ] `plugin eval` suites for the skills.
